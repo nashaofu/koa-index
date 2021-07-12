@@ -1,5 +1,4 @@
-import path from 'path'
-import fs from 'fs-extra'
+import fs from 'fs/promises'
 import joinUrlPath from './joinUrlPath'
 import type { TFile } from './template'
 
@@ -22,36 +21,33 @@ export default async function readdir (dirname: string, pathname: string, opts: 
     return null
   }
 
-  let files = await fs.readdir(dirname)
+  let files = await fs.readdir(dirname, { withFileTypes: true })
 
   if (opts.hidden !== true) {
-    files = files.filter(file => !file.startsWith('.'))
+    files = files.filter(file => !file.name.startsWith('.'))
   }
 
-  const tfiles = await Promise.all(
-    files.map(async file => {
-      const stat = await fs.stat(path.join(dirname, file))
-      const isDirectory = stat.isDirectory()
+  const tfiles = files
+    .map(file => {
+      const isDirectory = file.isDirectory()
       return {
-        name: file,
+        name: file.name,
         folder: isDirectory,
         icon: isDirectory ? 'folder' : 'file',
-        url: joinUrlPath(pathname, file, isDirectory ? '/' : '')
+        url: joinUrlPath(pathname, file.name, isDirectory ? '/' : '')
       }
     })
-  )
-
-  tfiles.sort((prev, next) => {
-    if (prev.folder && next.folder) {
-      return prev.name.localeCompare(next.name)
-    } else if (prev.folder && !next.folder) {
-      return -1
-    } else if (!prev.folder && next.folder) {
-      return 1
-    } else {
-      return prev.name.localeCompare(next.name)
-    }
-  })
+    .sort((prev, next) => {
+      if (prev.folder && next.folder) {
+        return prev.name.localeCompare(next.name)
+      } else if (prev.folder && !next.folder) {
+        return -1
+      } else if (!prev.folder && next.folder) {
+        return 1
+      } else {
+        return prev.name.localeCompare(next.name)
+      }
+    })
 
   // 不是根目录就显示 ..
   if (pathname.replace(regExp, '') !== base.replace(regExp, '')) {

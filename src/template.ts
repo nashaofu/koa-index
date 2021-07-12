@@ -17,7 +17,7 @@ export interface TOpts {
   dirname: string
   paths: TPath[]
   files: TFile[]
-  icons?: boolean
+  icons: string[]
 }
 
 const root = path.join(__dirname, '../template/')
@@ -29,7 +29,7 @@ export default function template (data: TOpts): Promise<string> {
       data,
       {
         root,
-        cache: true
+        cache: false
       },
       (err, str) => {
         if (err) {

@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "none",
+    "declaration": false,
+    "outDir": "./template/dist/script"
+  },
+  "include": [
+    "./template/script"
+  ]
+}

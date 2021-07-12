@@ -4,14 +4,20 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Listing directory ~<%= dirname %></title>
+    <title>Listing directory ~<%- dirname %></title>
     <style>
-      <%- include('style.css'); %>
+      <%- include("dist/style/style.css"); %>
     </style>
   </head>
   <body>
-    <main>
-      <header>
+    <svg class="icons">
+      <% icons.forEach((icon) => { %>
+      <%- include(`dist/icons/${icon}.svg`); %>
+      <% }); %>
+    </svg>
+    <main class="main">
+      <input id="search" class="search" type="text" placeholder="Search" autocomplete="off" />
+      <header class="header">
         <h1 class="paths">
           <a class="path" href="/">~</a>
           <span>/</span>
@@ -21,16 +27,21 @@
           <% }); %>
         </h1>
       </header>
-      <div class="files">
+      <ul id="files" class="files">
         <% files.forEach((file) => { %>
-        <a class="file" href="<%- file.url %>" title="<%- file.name %>">
-          <% if (icons) { %>
-          <span class="file-icon"><%- include(`icons/${file.icon || 'file'}.ejs`); %></span>
-          <% } %>
-          <span class="file-name"><%- file.name %></span>
-        </a>
+        <li class="file" data-name="<%- file.name %>">
+          <a class="file-link" href="<%- file.url %>" title="<%- file.name %>">
+            <span class="file-icon">
+              <svg class="file-icon-symbol"><use xlink:href="#<%- file.icon %>" /></svg>
+            </span>
+            <span class="file-name"><%- file.name %></span>
+          </a>
+        </li>
         <% }); %>
-      </div>
+      </ul>
     </main>
+    <script>
+      <%- include("dist/script/script.js"); %>
+    </script>
   </body>
 </html>

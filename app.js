@@ -13,8 +13,7 @@ app.use(
 
 app.use(
   koaIndex(__dirname, {
-    hidden: true,
-    icons: true
+    hidden: true
   })
 )
 

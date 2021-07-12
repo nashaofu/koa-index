@@ -6,7 +6,6 @@ import template, { TPath } from './template'
 
 export interface IOpts {
   hidden?: boolean
-  icons?: boolean
 }
 
 export default function (root: string, opts: IOpts = {}): Middleware {
@@ -36,11 +35,18 @@ export default function (root: string, opts: IOpts = {}): Middleware {
       return paths
     }, [])
 
+    const icons = files.reduce<string[]>((icons, file) => {
+      if (!icons.includes(file.icon)) {
+        icons.push(file.icon)
+      }
+      return icons
+    }, [])
+
     ctx.type = 'text/html; charset=utf-8'
     ctx.body = await template({
       files,
       paths,
-      icons: opts.icons,
+      icons,
       dirname: joinUrlPath(pathname, '/')
     })
 

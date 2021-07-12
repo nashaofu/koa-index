@@ -10,7 +10,7 @@ Serve directory listings for Koa
 
 ## Screenshot
 
-![default options](./screenshot.png)
+![screenshot](./screenshot.png)
 
 ## Usage
 
@@ -31,8 +31,7 @@ app.use(
 
 app.use(
   koaIndex(__dirname, {
-    hidden: true,
-    icons: true
+    hidden: true
   })
 )
 
@@ -44,7 +43,6 @@ app.listen(8080)
 ```ts
 interface IOpts {
   hidden?: boolean
-  icons?: boolean
 }
 
 koaIndex(root:string, opts:IOpts)
@@ -53,8 +51,6 @@ koaIndex(root:string, opts:IOpts)
 ### Options
 
 - **hidden**: Display hidden (dot) files. Defaults to `false`.
-
-- **icons**: Display icons. Defaults to false.
 
 ## License
 
