@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listing directory ~<%= dirname %></title>
+    <style>
+      <%- include('style.css'); %>
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1 class="paths">
+          <a class="path" href="/">~</a>
+          <span>/</span>
+          <% paths.forEach((path) => { %>
+          <a class="path" href="<%- path.url %>"><%- path.name %></a>
+          <span>/</span>
+          <% }); %>
+        </h1>
+      </header>
+      <div class="files">
+        <% files.forEach((file) => { %>
+        <a class="file" href="<%- file.url %>" title="<%- file.name %>">
+          <% if (icons) { %>
+          <span class="file-icon"><%- include(`icons/${file.icon || 'file'}.ejs`); %></span>
+          <% } %>
+          <span class="file-name"><%- file.name %></span>
+        </a>
+        <% }); %>
+      </div>
+    </main>
+  </body>
+</html>
