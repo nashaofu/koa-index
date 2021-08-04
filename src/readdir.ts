@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import joinUrlPath from './joinUrlPath'
 import type { TFile } from './template'
+import getFileIcon from './getFileIcon'
 
 export interface ROpts {
   base?: string
@@ -33,7 +34,7 @@ export default async function readdir (dirname: string, pathname: string, opts: 
       return {
         name: file.name,
         folder: isDirectory,
-        icon: isDirectory ? 'folder' : 'file',
+        icon: isDirectory ? 'folder' : getFileIcon(file.name),
         url: joinUrlPath(pathname, file.name, isDirectory ? '/' : '')
       }
     })
