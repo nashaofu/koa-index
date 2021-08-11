@@ -10,6 +10,10 @@ export interface IOpts {
 
 export default function (root: string, opts: IOpts = {}): Middleware {
   return async function (ctx: Context, next: Next): Promise<void> {
+    if (ctx.body != null || ctx.status !== 404) {
+      return next()
+    }
+
     const pathname = decodeURIComponent(ctx.path)
     const base = decodeURIComponent(ctx.mountPath || '/')
     const originalPathname = joinUrlPath(base, pathname)
@@ -20,6 +24,7 @@ export default function (root: string, opts: IOpts = {}): Middleware {
       hidden: opts.hidden
     })
 
+    // 读取文件夹失败
     if (!files) {
       return next()
     }
@@ -43,6 +48,7 @@ export default function (root: string, opts: IOpts = {}): Middleware {
     }, [])
 
     ctx.type = 'text/html; charset=utf-8'
+    console.log('sdasdasdasdas')
     ctx.body = await template({
       files,
       paths,
