@@ -6,12 +6,6 @@ const koaStatic = require('koa-static')
 const app = new Koa()
 
 app.use(
-  koaStatic(__dirname, {
-    hidden: true
-  })
-)
-
-app.use(
   koaIndex(__dirname, {
     hidden: true
   })

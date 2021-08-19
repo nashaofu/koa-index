@@ -1,34 +1,25 @@
-import fs from 'fs/promises'
+import fs from 'fs-extra'
 import joinUrlPath from './joinUrlPath'
-import type { TFile } from './template'
 import getFileIcon from './getFileIcon'
+import template, { TPath } from './template'
 
-export interface ROpts {
+export interface RDOpts {
   base?: string
   hidden?: boolean
 }
 
 const regExp = /^\/+|\/+$/g
 
-export default async function readdir (dirname: string, pathname: string, opts: ROpts = {}): Promise<TFile[] | null> {
+export default async function readDirectory (dirname: string, pathname: string, opts: RDOpts): Promise<string> {
   const base = opts.base ?? '/'
 
-  try {
-    const stat = await fs.stat(dirname)
-    if (!stat.isDirectory()) {
-      return null
-    }
-  } catch (err) {
-    return null
-  }
-
-  let files = await fs.readdir(dirname, { withFileTypes: true })
+  let filenames = await fs.readdir(dirname, { withFileTypes: true })
 
   if (opts.hidden !== true) {
-    files = files.filter(file => !file.name.startsWith('.'))
+    filenames = filenames.filter(file => !file.name.startsWith('.'))
   }
 
-  const tfiles = files
+  const files = filenames
     .map(file => {
       const isDirectory = file.isDirectory()
       return {
@@ -52,7 +43,7 @@ export default async function readdir (dirname: string, pathname: string, opts: 
 
   // 不是根目录就显示 ..
   if (pathname.replace(regExp, '') !== base.replace(regExp, '')) {
-    tfiles.unshift({
+    files.unshift({
       name: '..',
       folder: true,
       icon: 'folder',
@@ -60,5 +51,28 @@ export default async function readdir (dirname: string, pathname: string, opts: 
     })
   }
 
-  return tfiles
+  const paths = pathname.split('/').reduce<TPath[]>((paths, path) => {
+    if (path) {
+      const url = paths.slice(-1)[0]?.url ?? '/'
+      paths.push({
+        url: joinUrlPath(url, path, '/'),
+        name: path
+      })
+    }
+    return paths
+  }, [])
+
+  const icons = files.reduce<string[]>((icons, file) => {
+    if (!icons.includes(file.icon)) {
+      icons.push(file.icon)
+    }
+    return icons
+  }, [])
+
+  return template({
+    files,
+    paths,
+    icons,
+    dirname: joinUrlPath(pathname, '/')
+  })
 }
