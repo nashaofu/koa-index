@@ -17,17 +17,9 @@ Serve directory listings for Koa
 ```ts
 import Koa from 'koa'
 import path from 'path'
-import koaStatic from 'koa-static'
 import koaIndex from 'koa-index'
 
 const app = new Koa()
-
-// require koa-static send file
-app.use(
-  koaStatic(__dirname, {
-    hidden: true
-  })
-)
 
 app.use(
   koaIndex(__dirname, {
@@ -42,15 +34,25 @@ app.listen(8080)
 
 ```ts
 interface IOpts {
+  index?: string | boolean
+  directory?: boolean
+  maxAge?: number
+  lastModified?: boolean
+  etag?: boolean
   hidden?: boolean
 }
 
-koaIndex(root:string, opts:IOpts)
+koaIndex(root: string, opts?: IOpts)
 ```
 
 ### Options
 
-- **hidden**: Display hidden (dot) files. Defaults to `false`.
+- **index**: Default file name, defaults to `index.html`
+- **directory**: Support directory send, defaults to `true`
+- **maxAge**: cache control max age (in milliseconds) for the files, default to `0`
+- **lastModified**: Enable or disable Last-Modified header, defaults to `true`
+- **etag**: Enable or disable etag generation, defaults to `true`
+- **hidden**: Display hidden (dot) files. Defaults to `false`
 
 ## License
 

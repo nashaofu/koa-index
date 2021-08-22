@@ -6,7 +6,8 @@ import sendDirectory from './sendDirectory'
 
 export interface IOpts {
   index?: string | boolean
-  maxage?: number
+  directory?: boolean
+  maxAge?: number
   lastModified?: boolean
   etag?: boolean
   hidden?: boolean
@@ -17,10 +18,11 @@ export default function (iRoot: string, iOpts?: IOpts): Middleware {
 
   const opts = {
     index: iOpts?.index ?? 'index.html',
-    maxage: iOpts?.maxage ?? 0,
+    directory: iOpts?.directory ?? true,
+    maxAge: iOpts?.maxAge ?? 0,
     lastModified: iOpts?.lastModified ?? true,
     etag: iOpts?.etag ?? true,
-    hidden: iOpts?.hidden ?? true
+    hidden: iOpts?.hidden ?? false
   }
 
   return async function (ctx: Context, next: Next): Promise<void> {
@@ -40,7 +42,7 @@ export default function (iRoot: string, iOpts?: IOpts): Middleware {
     }
 
     // 判断是否为隐藏文件
-    if (opts.hidden && path.basename(filename)[0] === '.') {
+    if (!opts.hidden && path.basename(filename)[0] === '.') {
       return next()
     }
 
@@ -49,7 +51,7 @@ export default function (iRoot: string, iOpts?: IOpts): Middleware {
     if (stat.isFile()) {
       await sendFile(filename, ctx, {
         stat,
-        maxage: opts.maxage,
+        maxAge: opts.maxAge,
         lastModified: opts.lastModified,
         etag: opts.etag,
         hidden: opts.hidden
@@ -66,18 +68,18 @@ export default function (iRoot: string, iOpts?: IOpts): Middleware {
         if (indexFileStat && indexFileStat.isFile()) {
           await sendFile(filename, ctx, {
             stat: indexFileStat,
-            maxage: opts.maxage,
+            maxAge: opts.maxAge,
             lastModified: opts.lastModified,
             etag: opts.etag,
             hidden: opts.hidden
           })
-        } else {
+        } else if (opts.directory) {
           await sendDirectory(filename, ctx, {
             pathname,
             hidden: opts.hidden
           })
         }
-      } else {
+      } else if (opts.directory) {
         await sendDirectory(filename, ctx, {
           pathname,
           hidden: opts.hidden

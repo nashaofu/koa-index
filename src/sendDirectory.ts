@@ -17,7 +17,7 @@ export default async function sendDirectory (dirname: string, ctx: Context, opts
 
   let filenames = await fs.readdir(dirname, { withFileTypes: true })
 
-  if (opts.hidden !== true) {
+  if (!opts.hidden) {
     filenames = filenames.filter(file => !file.name.startsWith('.'))
   }
 

@@ -6,7 +6,7 @@ import rangeParser from 'range-parser'
 
 export interface SFOpts {
   stat: Stats
-  maxage: number
+  maxAge: number
   lastModified: boolean
   etag: boolean
   hidden: boolean
@@ -14,12 +14,12 @@ export interface SFOpts {
 
 export default async function sendFile (filename: string, ctx: Context, opts: SFOpts): Promise<void> {
   const stat = opts.stat
-  const maxage = (opts.maxage ?? 0 / 1000) | 0
+  const maxAge = (opts.maxAge ?? 0 / 1000) | 0
 
   ctx.type = path.extname(filename)
 
   if (!ctx.response.get('Cache-Control')) {
-    ctx.set('Cache-Control', `public, max-age=${maxage}`)
+    ctx.set('Cache-Control', `public, max-age=${maxAge}`)
   }
   if (opts.lastModified && !ctx.response.get('Last-Modified')) {
     ctx.set('Last-Modified', stat.mtime.toUTCString())
