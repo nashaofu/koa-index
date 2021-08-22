@@ -1,6 +1,6 @@
 {
   "name": "koa-index",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Serve directory listings for Koa",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
