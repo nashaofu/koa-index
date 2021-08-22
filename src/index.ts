@@ -1,60 +1,91 @@
 import path from 'path'
+import fs from 'fs-extra'
 import type { Context, Next, Middleware } from 'koa'
-import readdir from './readdir'
-import joinUrlPath from './joinUrlPath'
-import template, { TPath } from './template'
+import sendFile from './sendFile'
+import sendDirectory from './sendDirectory'
 
 export interface IOpts {
+  index?: string | boolean
+  directory?: boolean
+  maxAge?: number
+  lastModified?: boolean
+  etag?: boolean
   hidden?: boolean
 }
 
-export default function (root: string, opts: IOpts = {}): Middleware {
+export default function (iRoot: string, iOpts?: IOpts): Middleware {
+  const root = path.resolve(iRoot)
+
+  const opts = {
+    index: iOpts?.index ?? 'index.html',
+    directory: iOpts?.directory ?? true,
+    maxAge: iOpts?.maxAge ?? 0,
+    lastModified: iOpts?.lastModified ?? true,
+    etag: iOpts?.etag ?? true,
+    hidden: iOpts?.hidden ?? false
+  }
+
   return async function (ctx: Context, next: Next): Promise<void> {
+    // only accept GET and HEAD
+    if (ctx.method !== 'GET' && ctx.method !== 'HEAD') {
+      return next()
+    }
     if (ctx.body != null || ctx.status !== 404) {
       return next()
     }
 
     const pathname = decodeURIComponent(ctx.path)
-    const base = decodeURIComponent(ctx.mountPath || '/')
-    const originalPathname = joinUrlPath(base, pathname)
-    const dirname = path.join(root, pathname)
+    const filename = path.join(root, pathname)
 
-    const files = await readdir(dirname, originalPathname, {
-      base,
-      hidden: opts.hidden
-    })
-
-    // 读取文件夹失败
-    if (!files) {
+    if (!filename.startsWith(root)) {
       return next()
     }
 
-    const paths = originalPathname.split('/').reduce<TPath[]>((paths, path) => {
-      if (path) {
-        const url = paths.slice(-1)[0]?.url ?? '/'
-        paths.push({
-          url: joinUrlPath(url, path, '/'),
-          name: path
+    // 判断是否为隐藏文件
+    if (!opts.hidden && path.basename(filename)[0] === '.') {
+      return next()
+    }
+
+    const stat = await fs.stat(filename)
+
+    if (stat.isFile()) {
+      await sendFile(filename, ctx, {
+        stat,
+        maxAge: opts.maxAge,
+        lastModified: opts.lastModified,
+        etag: opts.etag,
+        hidden: opts.hidden
+      })
+    } else {
+      if (opts.index && typeof opts.index === 'string') {
+        const indexFileName = path.join(filename, opts.index)
+        let indexFileStat
+        try {
+          indexFileStat = await fs.stat(indexFileName)
+        } catch (err) {}
+
+        // 只处理文件的情况，如果是文件夹则还是显示filename文件夹的内容
+        if (indexFileStat && indexFileStat.isFile()) {
+          await sendFile(filename, ctx, {
+            stat: indexFileStat,
+            maxAge: opts.maxAge,
+            lastModified: opts.lastModified,
+            etag: opts.etag,
+            hidden: opts.hidden
+          })
+        } else if (opts.directory) {
+          await sendDirectory(filename, ctx, {
+            pathname,
+            hidden: opts.hidden
+          })
+        }
+      } else if (opts.directory) {
+        await sendDirectory(filename, ctx, {
+          pathname,
+          hidden: opts.hidden
         })
       }
-      return paths
-    }, [])
-
-    const icons = files.reduce<string[]>((icons, file) => {
-      if (!icons.includes(file.icon)) {
-        icons.push(file.icon)
-      }
-      return icons
-    }, [])
-
-    ctx.type = 'text/html; charset=utf-8'
-    console.log('sdasdasdasdas')
-    ctx.body = await template({
-      files,
-      paths,
-      icons,
-      dirname: joinUrlPath(pathname, '/')
-    })
+    }
 
     return next()
   }

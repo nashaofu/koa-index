@@ -52,11 +52,20 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "etag": "^1.8.1",
+    "fs-extra": "^10.0.0",
+    "range-parser": "^1.2.1"
+  },
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
     "@types/ejs": "^3.0.7",
+    "@types/etag": "^1.8.1",
+    "@types/fs-extra": "^9.0.12",
     "@types/koa": "^2.13.4",
+    "@types/range-parser": "^1.2.4",
     "@typescript-eslint/eslint-plugin": "^4.28.2",
     "@typescript-eslint/parser": "^4.28.2",
     "autoprefixer": "^10.3.1",
@@ -70,7 +79,6 @@
     "eslint-plugin-promise": "^5.1.0",
     "husky": "^7.0.0",
     "koa": "^2.13.1",
-    "koa-static": "^5.0.0",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.3.6",
     "postcss-cli": "^8.3.1",
@@ -81,8 +89,5 @@
     "stylelint-config-recess-order": "^2.4.0",
     "stylelint-config-standard": "^22.0.0",
     "typescript": "^4.3.5"
-  },
-  "dependencies": {
-    "ejs": "^3.1.6"
   }
 }
